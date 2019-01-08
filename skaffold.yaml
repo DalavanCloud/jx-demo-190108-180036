@@ -1,0 +1,31 @@
+apiVersion: skaffold/v1alpha2
+kind: Config
+build:
+  tagPolicy:
+    envTemplate:
+      template: "{{.DOCKER_REGISTRY}}/ascheman-jx/jx-demo-190108-180036:{{.VERSION}}"
+  artifacts:
+  - imageName: changeme
+    workspace: .
+    docker: {}
+  local: {}
+deploy:
+  kubectl:
+    manifests:
+profiles:
+- name: dev
+  build:
+    tagPolicy:
+      envTemplate:
+        template: "{{.DOCKER_REGISTRY}}/ascheman-jx/jx-demo-190108-180036:{{.DIGEST_HEX}}"
+    artifacts:
+    - docker: {}
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: jx-demo-190108-180036
+        chartPath: charts/jx-demo-190108-180036
+        setValueTemplates:
+          image.repository: "{{.DOCKER_REGISTRY}}/ascheman-jx/jx-demo-190108-180036"
+          image.tag: "{{.DIGEST_HEX}}"
